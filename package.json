@@ -7,23 +7,9 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
-    "test": "nyc mocha --opts ./mocha.opts",
+    "test": "mocha --opts ./mocha.opts",
     "lint": "tslint -c tslint.json --project tsconfig.json",
     "lint-fix": "tslint --fix -c tslint.json --project tsconfig.json"
-  },
-  "nyc": {
-    "include": [
-      "**/*.ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text-summary",
-      "html"
-    ],
-    "sourceMap": true,
-    "instrument": true
   },
   "author": "Antonín Bouchal <me@justme.cz>",
   "license": "MIT",
@@ -41,11 +27,9 @@
     "chai": "^4.2.0",
     "express": "^4.16.4",
     "mocha": "^5.2.0",
-    "nyc": "^13.2.0",
     "sinon": "^7.2.3",
     "sinon-chai": "^3.3.0",
     "sinon-express-mock": "^2.1.0",
-    "source-map-support": "^0.5.10",
     "ts-node": "^7.0.1",
     "tslint": "^5.12.1",
     "tslint-config-airbnb": "^5.11.1",
