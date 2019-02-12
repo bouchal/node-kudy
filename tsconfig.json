@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "lib": [
+      "es5",
+      "es7",
+      "es2015.promise",
+      "es2015.proxy"
+    ],
+    "outDir": "./dist",
+    "declaration": true,
+    "alwaysStrict": true
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./src/**/*.test.ts"
+  ]
+}
