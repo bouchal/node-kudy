@@ -1,8 +1,8 @@
-import JsonResponse from "./JsonResponse";
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai';
 import {Response} from "express";
 import {mockRes} from "sinon-express-mock";
+import JsonResponse from "./JsonResponse";
 
 const expect = chai.expect;
 chai.use(sinonChai);

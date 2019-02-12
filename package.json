@@ -1,16 +1,34 @@
 {
   "name": "kudy",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "kudy.js",
+  "types": "kudy.d.ts",
   "scripts": {
     "build": "tsc",
     "prepublish": "npm run build",
-    "test": "mocha --require ts-node/register \"**/*.test.ts\""
+    "test": "nyc mocha --opts ./mocha.opts",
+    "lint": "tslint -c tslint.json --project tsconfig.json",
+    "lint-fix": "tslint --fix -c tslint.json --project tsconfig.json"
+  },
+  "nyc": {
+    "include": [
+      "**/*.ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true
   },
   "author": "Antonín Bouchal <me@justme.cz>",
   "license": "MIT",
   "devDependencies": {
+    "@types/body-parser": "^1.17.0",
     "@types/chai": "^4.1.7",
     "@types/express": "^4.16.1",
     "@types/mocha": "^5.2.5",
@@ -18,13 +36,21 @@
     "@types/sinon": "^7.0.5",
     "@types/sinon-chai": "^3.2.2",
     "@types/sinon-express-mock": "^1.3.7",
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
     "chai": "^4.2.0",
     "express": "^4.16.4",
     "mocha": "^5.2.0",
+    "nyc": "^13.2.0",
     "sinon": "^7.2.3",
     "sinon-chai": "^3.3.0",
     "sinon-express-mock": "^2.1.0",
+    "source-map-support": "^0.5.10",
     "ts-node": "^7.0.1",
+    "tslint": "^5.12.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.2.4"
   },
   "dependencies": {

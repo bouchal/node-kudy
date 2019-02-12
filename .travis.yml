@@ -6,4 +6,20 @@ node_js:
 - "9"
 - "10"
 
-script: npm run test
+cache:
+  directories:
+  - node_modules
+
+
+jobs:
+  include:
+  - stage: Test
+    script: npm run test
+    node_js:
+    - "stable"
+    - "6"
+    - "8"
+    - "9"
+    - "10"
+  - stage: TS lint
+    script: npm run lint

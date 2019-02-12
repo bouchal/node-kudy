@@ -1,15 +1,14 @@
-import {Request, Response, Router} from "express";
-import * as fs from 'fs';
-import {Stats} from "fs";
+import {Application, Request, Response, Router} from "express";
+import * as fs from "fs";
 import RoutesLoaderError from "./errors/RoutesLoaderError";
 import AbstractRoute from "./routes/AbstractRoute";
 import * as Ajv from "ajv";
 import InvalidInputError from "./models/InvalidInputError";
-import IRouteResponse from "./interfaces/IRouteResponse";
+import AbstractResponse from "./responses/AbstractResponse";
 import JsonResponse from "./responses/JsonResponse";
 
-type InvalidInputHandler = (err: InvalidInputError) => Promise<IRouteResponse>;
-type ErrorCatchHandler = (err: Error) => Promise<IRouteResponse>;
+type InvalidInputHandler = (err: InvalidInputError) => Promise<AbstractResponse> | AbstractResponse;
+type ErrorCatchHandler = (err: Error) => Promise<AbstractResponse> | AbstractResponse;
 
 const ajv = new Ajv({coerceTypes: true});
 
@@ -56,13 +55,13 @@ export default class RouterLoader<T> {
      * @param parentRouter
      * @param dirPath
      */
-    async appendRoutesFromDir(parentRouter: Router, dirPath: string): Promise<Router> {
+    async appendRoutesFromDir(parentRouter: Router | Application, dirPath: string): Promise<Router | Application> {
         const dirs: string[] = [];
         const files: string[] = [];
 
         const dirItems = (await this.getDirItems(dirPath))
             .filter((item) => ['.', '_'].indexOf(item[0]) === -1) // Skip items started with `_` or `.`
-            .map((itemPath) => dirPath + '/' + itemPath); // Modify item names to full path
+            .map((itemPath) => `${dirPath}/${itemPath}`); // Modify item names to full path
 
 
         await this.separateDirItemsToTypes(dirItems, dirs, files);
@@ -126,26 +125,26 @@ export default class RouterLoader<T> {
      * @param routePath
      */
     protected async getRouteInstanceByPath(routePath: string): Promise<AbstractRoute> {
-        const Route = await import(routePath);
-        const initializer = Route.default || Route;
+        const routeDefinition = await import(routePath);
+        const initializer = routeDefinition.default || routeDefinition;
 
-        let RouteInstance;
+        let routeInstance;
 
         try {
-            RouteInstance = new initializer(this.routeConstructParams);
+            routeInstance = new initializer(this.routeConstructParams);
         } catch (err) {
             if (err.message.indexOf('is not a constructor') === -1) {
                 throw err;
             }
 
-            RouteInstance = initializer(this.routeConstructParams);
+            routeInstance = initializer(this.routeConstructParams);
         }
 
-        if (!(RouteInstance instanceof AbstractRoute)) {
-            throw new RoutesLoaderError('Route "' + routePath + "' is not instance of AbstractRoute");
+        if (!(routeInstance instanceof AbstractRoute)) {
+            throw new RoutesLoaderError(`Route "${routePath}' is not instance of AbstractRoute`);
         }
 
-        return RouteInstance;
+        return routeInstance;
     }
 
     /**
@@ -157,15 +156,18 @@ export default class RouterLoader<T> {
      * @param parentRouter
      * @param dirPath
      */
-    protected async getCustomRouterFromDir(parentRouter: Router, dirPath: string): Promise<Router> {
-        try {
-            const routerFactory = await import(dirPath);
-            const routerInitializer = routerFactory.default || routerFactory;
+    protected async getCustomRouterFromDir(parentRouter: Router | Application, dirPath: string): Promise<Router | Application> {
+        let routerFactory;
 
-            return await routerInitializer(parentRouter, this.routeConstructParams);
+        try {
+            routerFactory = await import(dirPath);
         } catch (e) {
             return parentRouter;
         }
+
+        const routerInitializer = routerFactory.default || routerFactory;
+
+        return await routerInitializer(parentRouter, this.routeConstructParams);
     }
 
     /**
@@ -209,8 +211,8 @@ export default class RouterLoader<T> {
      *
      * @param fullPath
      */
-    protected getDirItemStats(fullPath: string): Promise<Stats> {
-        return new Promise<Stats>((resolve, reject) => {
+    protected getDirItemStats(fullPath: string): Promise<fs.Stats> {
+        return new Promise<fs.Stats>((resolve, reject) => {
             fs.stat(fullPath, (err, stat) => {
                 if (err) {
                     return reject(err);
@@ -241,7 +243,7 @@ export default class RouterLoader<T> {
 
         if (dataSchema) {
             const getBodyFromRequest = (req: Request) => {
-                return req.body;
+                return req.body || {};
             };
 
             middlewareArray.push(this.getValidationMiddleware(getBodyFromRequest, dataSchema, 'BODY'));
@@ -286,10 +288,11 @@ export default class RouterLoader<T> {
             if (!validate(data)) {
                 const error = new InvalidInputError(sectionName, validate.errors, schema);
 
-                (this.options.invalidInputHandler
-                    ? this.options.invalidInputHandler
-                    : this.defaultInvalidInputHandler)(error)
-                    .then(async (response: IRouteResponse) => {
+                Promise.resolve(
+                    (this.options.invalidInputHandler
+                        ? this.options.invalidInputHandler
+                        : this.defaultInvalidInputHandler)(error))
+                    .then(async (response: AbstractResponse) => {
                         await response.sendToResponse(res);
                     });
 
@@ -321,10 +324,11 @@ export default class RouterLoader<T> {
 
                 return response.sendToResponse(res);
             } catch (e) {
-                (this.options.errorCatchHandler
-                    ? this.options.errorCatchHandler
-                    : this.defaultErrorCatchHandler)(e)
-                    .then(async (response: IRouteResponse) => {
+                Promise.resolve(
+                    (this.options.errorCatchHandler
+                        ? this.options.errorCatchHandler
+                        : this.defaultErrorCatchHandler)(e))
+                    .then(async (response: AbstractResponse) => {
                         await response.sendToResponse(res);
                     });
 
@@ -346,13 +350,13 @@ export default class RouterLoader<T> {
     protected async defaultInvalidInputHandler(error: InvalidInputError) {
         const body = {
             error: 'INVALID_INPUT',
-            error_description: 'Input data in ' + error.sectionName + ' section are wrong or missing',
+            error_description: `Input data in ${error.sectionName} section are wrong or missing`,
             error_validation: {
                 errors: error.errors,
                 schema: error.schema
             }
         };
 
-        return new JsonResponse(body, 500);
+        return new JsonResponse(body, 422);
     }
 }

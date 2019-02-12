@@ -1,7 +1,7 @@
-import IRouteResponse from "../interfaces/IRouteResponse";
 import {Response} from "express";
+import AbstractResponse from "./AbstractResponse";
 
-export default class EmptyResponse implements IRouteResponse {
+export default class EmptyResponse implements AbstractResponse {
     protected statusCode: number;
 
     constructor(statusCode: number = 200) {

@@ -1,4 +1,3 @@
-import * as sinon from 'sinon';
 import * as chai from 'chai';
 import * as sinonChai from 'sinon-chai';
 
@@ -6,10 +5,9 @@ const expect = chai.expect;
 chai.use(sinonChai);
 
 import AbstractRoute from "./AbstractRoute";
-import {ClientRequest, ServerResponse} from "http";
-import IRouteResponse from "../interfaces/IRouteResponse";
 import PlainResponse from "../responses/PlainResponse";
 import {Request, Response} from "express";
+import {AbstractResponse} from "../kudy";
 
 const PRIMITIVE_METHOD = 'POST';
 const PRIMITIVE_PATH = '/v0/primitive';
@@ -23,7 +21,7 @@ class PrimitiveRoute extends AbstractRoute {
         return PRIMITIVE_PATH;
     }
 
-    handler(req: Request, res: Response): Promise<IRouteResponse> | IRouteResponse {
+    handler(req: Request, res: Response): Promise<AbstractResponse> | AbstractResponse {
         return new PlainResponse();
     }
 }
