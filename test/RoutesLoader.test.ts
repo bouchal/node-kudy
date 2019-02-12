@@ -1,11 +1,11 @@
 import * as express from 'express';
 import {Server} from "http"
-import RouterLoader from "../src/RouterLoader";
+import Loader from "../src";
 import RouteParams from "./RouteParams";
 import axios from "axios";
 import * as chai from 'chai';
 import * as bodyParser from "body-parser";
-import {EmptyResponse} from "../src/kudy";
+import {EmptyResponse} from "../src";
 
 const expect = chai.expect;
 
@@ -16,11 +16,11 @@ const TEST_SERVER_PORT = 9999;
 axios.defaults.baseURL = TEST_SERVER_URL + ':' + TEST_SERVER_PORT;
 
 
-describe('RouterLoader', function () {
+describe('Loader', function () {
     let server: Server;
     const routeParams = new RouteParams();
-    let routerLoader: RouterLoader<typeof routeParams>;
-    let ownErrorHandlerLoader: RouterLoader<typeof routeParams>;
+    let routerLoader: Loader<typeof routeParams>;
+    let ownErrorHandlerLoader: Loader<typeof routeParams>;
     const app = express();
 
     app.use(bodyParser.json());
@@ -36,9 +36,9 @@ describe('RouterLoader', function () {
         server.close(done);
     });
 
-    it('should init RouterLoader instance', function () {
-        routerLoader = new RouterLoader<RouteParams>(routeParams);
-        ownErrorHandlerLoader = new RouterLoader<RouteParams>(routeParams, {
+    it('should init Loader instance', function () {
+        routerLoader = new Loader<RouteParams>(routeParams);
+        ownErrorHandlerLoader = new Loader<RouteParams>(routeParams, {
             errorCatchHandler: async (err) => {
                 return new EmptyResponse(404);
             },
@@ -74,6 +74,12 @@ describe('RouterLoader', function () {
         });
 
         expect(res.status).to.be.equal(404);
+    });
+
+    it('should load async route', async function () {
+        const res = await axios.get('/async');
+
+        expect(res.status).to.be.equal(200);
     });
 
     it('should add one middleware in routes', async function() {

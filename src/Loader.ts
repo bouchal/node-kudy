@@ -1,6 +1,6 @@
 import {Application, Request, Response, Router} from "express";
 import * as fs from "fs";
-import RoutesLoaderError from "./errors/RoutesLoaderError";
+import LoaderError from "./errors/LoaderError";
 import AbstractRoute from "./routes/AbstractRoute";
 import * as Ajv from "ajv";
 import InvalidInputError from "./models/InvalidInputError";
@@ -31,7 +31,7 @@ export type Options = {
     recursive?: boolean
 }
 
-export default class RouterLoader<T> {
+export default class Loader<T = any> {
     protected routeConstructParams?: T;
     protected options: Options = {
         recursive: true
@@ -131,17 +131,17 @@ export default class RouterLoader<T> {
         let routeInstance;
 
         try {
-            routeInstance = new initializer(this.routeConstructParams);
+            routeInstance = await (new initializer(this.routeConstructParams));
         } catch (err) {
             if (err.message.indexOf('is not a constructor') === -1) {
                 throw err;
             }
 
-            routeInstance = initializer(this.routeConstructParams);
+            routeInstance = await initializer(this.routeConstructParams);
         }
 
         if (!(routeInstance instanceof AbstractRoute)) {
-            throw new RoutesLoaderError(`Route "${routePath}' is not instance of AbstractRoute`);
+            throw new LoaderError(`Route "${routePath}' is not instance of AbstractRoute`);
         }
 
         return routeInstance;

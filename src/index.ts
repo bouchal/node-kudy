@@ -3,19 +3,19 @@ import PlainResponse from "./responses/PlainResponse";
 import EmptyResponse from "./responses/EmptyResponse";
 import AbstractResponse from "./responses/AbstractResponse";
 import AbstractRoute from "./routes/AbstractRoute";
-import RoutesLoaderError from "./errors/RoutesLoaderError";
-import RouterLoader, {Options} from './RouterLoader';
+import LoaderError from "./errors/LoaderError";
+import Loader, {Options} from './Loader';
 import JsonResponse from "./responses/JsonResponse";
 
 export {
     AbstractRoute,
     Options,
     InvalidInputError,
-    RoutesLoaderError,
+    LoaderError,
     AbstractResponse,
     JsonResponse,
     PlainResponse,
     EmptyResponse
 }
 
-export default RouterLoader;
+export default Loader;
