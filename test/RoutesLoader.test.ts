@@ -82,6 +82,11 @@ describe('Loader', function () {
         expect(res.status).to.be.equal(200);
     });
 
+    it('should load async router decorator', async function () {
+        const res = await axios.get('/async-decorator-test');
+        expect(res.data.headers['x-async-header']).to.be.equal('OK');
+    });
+
     it('should add one middleware in routes', async function() {
         const res = await axios.get('/one-middleware');
 
