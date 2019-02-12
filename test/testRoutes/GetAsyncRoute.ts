@@ -1,9 +1,9 @@
 import {AbstractResponse, AbstractRoute, EmptyResponse} from "../../src";
 import * as e from "express";
 
-export default class GetThrowErrorRoute extends AbstractRoute {
+class getAsyncRoute extends AbstractRoute {
     handler(req: e.Request, res: e.Response): Promise<AbstractResponse> | AbstractResponse {
-        throw new Error('Wanted exception');
+        return new EmptyResponse();
     }
 
     get method(): string {
@@ -11,7 +11,14 @@ export default class GetThrowErrorRoute extends AbstractRoute {
     }
 
     get path(): string {
-        return "/throw-error";
+        return "/async";
     }
+}
 
+export default async () => {
+    return await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(new getAsyncRoute())
+        }, 200)
+    })
 }

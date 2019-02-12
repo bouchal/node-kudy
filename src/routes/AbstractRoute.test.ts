@@ -7,7 +7,7 @@ chai.use(sinonChai);
 import AbstractRoute from "./AbstractRoute";
 import PlainResponse from "../responses/PlainResponse";
 import {Request, Response} from "express";
-import {AbstractResponse} from "../kudy";
+import {AbstractResponse} from "..";
 
 const PRIMITIVE_METHOD = 'POST';
 const PRIMITIVE_PATH = '/v0/primitive';

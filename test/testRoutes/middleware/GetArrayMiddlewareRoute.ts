@@ -1,4 +1,4 @@
-import {AbstractResponse, AbstractRoute, JsonResponse} from "../../../src/kudy";
+import {AbstractResponse, AbstractRoute, JsonResponse} from "../../../src";
 import * as e from "express";
 import {Request, Response} from "express";
 

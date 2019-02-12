@@ -1,4 +1,4 @@
-import {AbstractResponse, AbstractRoute, EmptyResponse} from "../../../src/kudy";
+import {AbstractResponse, AbstractRoute, EmptyResponse} from "../../../src";
 import * as e from "express";
 
 export default class _GetIgnoredRoute extends AbstractRoute {
