@@ -1,11 +1,13 @@
 import {Application, Request, Response, Router} from "express";
-import * as fs from "fs";
+import {Stats} from 'fs';
 import LoaderError from "./errors/LoaderError";
 import AbstractRoute from "./routes/AbstractRoute";
 import * as Ajv from "ajv";
 import InvalidInputError from "./models/InvalidInputError";
 import AbstractResponse from "./responses/AbstractResponse";
 import JsonResponse from "./responses/JsonResponse";
+
+const fs = require('fs');
 
 type InvalidInputHandler = (err: InvalidInputError) => Promise<AbstractResponse> | AbstractResponse;
 type ErrorCatchHandler = (err: Error) => Promise<AbstractResponse> | AbstractResponse;
@@ -211,14 +213,14 @@ export default class Loader<T = any> {
      *
      * @param fullPath
      */
-    protected getDirItemStats(fullPath: string): Promise<fs.Stats> {
-        return new Promise<fs.Stats>((resolve, reject) => {
-            fs.stat(fullPath, (err, stat) => {
+    protected getDirItemStats(fullPath: string): Promise<Stats> {
+        return new Promise<Stats>((resolve, reject) => {
+            fs.stat(fullPath, (err: Error, stats: Stats) => {
                 if (err) {
                     return reject(err);
                 }
 
-                resolve(stat);
+                resolve(stats);
             })
         })
     }
