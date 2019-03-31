@@ -1,11 +1,12 @@
 {
   "name": "kudy",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run bundle",
+    "bundle": "dts-bundle-generator --config dtsconfig.js",
     "prepublish": "npm run build",
     "test": "mocha --opts ./mocha.opts",
     "lint": "tslint -c tslint.json --project tsconfig.json",
@@ -25,6 +26,7 @@
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "chai": "^4.2.0",
+    "dts-bundle-generator": "^2.1.0",
     "express": "^4.16.4",
     "mocha": "^5.2.0",
     "sinon": "^7.2.3",

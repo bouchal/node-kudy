@@ -6,3 +6,4 @@ src
 mocha.opts
 tsconfig.json
 tslint.json
+dtsconfig.js
