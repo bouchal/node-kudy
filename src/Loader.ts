@@ -1,5 +1,6 @@
 import {Application, Request, Response, Router} from "express";
 import {Stats} from 'fs';
+import * as path from 'path';
 import LoaderError from "./errors/LoaderError";
 import AbstractRoute from "./routes/AbstractRoute";
 import * as Ajv from "ajv";
@@ -63,7 +64,7 @@ export default class Loader<T = any> {
 
         const dirItems = (await this.getDirItems(dirPath))
             .filter((item) => ['.', '_'].indexOf(item[0]) === -1) // Skip items started with `_` or `.`
-            .map((itemPath) => `${dirPath}/${itemPath}`); // Modify item names to full path
+            .map((itemPath) => path.resolve(`${dirPath}/${itemPath}`)); // Modify item names to full path
 
 
         await this.separateDirItemsToTypes(dirItems, dirs, files);
