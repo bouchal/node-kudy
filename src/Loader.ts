@@ -10,8 +10,8 @@ import JsonResponse from "./responses/JsonResponse";
 
 const fs = require('fs');
 
-type InvalidInputHandler = (err: InvalidInputError) => Promise<AbstractResponse> | AbstractResponse;
-type ErrorCatchHandler = (err: Error) => Promise<AbstractResponse> | AbstractResponse;
+type InvalidInputHandler = (err: InvalidInputError, req: Request) => Promise<AbstractResponse> | AbstractResponse;
+type ErrorCatchHandler = (err: Error, req: Request) => Promise<AbstractResponse> | AbstractResponse;
 
 const ajv = new Ajv({coerceTypes: true});
 
@@ -294,7 +294,7 @@ export default class Loader<T = any> {
                 Promise.resolve(
                     (this.options.invalidInputHandler
                         ? this.options.invalidInputHandler
-                        : this.defaultInvalidInputHandler)(error))
+                        : this.defaultInvalidInputHandler)(error, req))
                     .then(async (response: AbstractResponse) => {
                         await response.sendToResponse(res);
                     });
@@ -330,7 +330,7 @@ export default class Loader<T = any> {
                 Promise.resolve(
                     (this.options.errorCatchHandler
                         ? this.options.errorCatchHandler
-                        : this.defaultErrorCatchHandler)(e))
+                        : this.defaultErrorCatchHandler)(e, req))
                     .then(async (response: AbstractResponse) => {
                         await response.sendToResponse(res);
                     });
@@ -340,7 +340,7 @@ export default class Loader<T = any> {
         }
     };
 
-    protected async defaultErrorCatchHandler(error: Error) {
+    protected async defaultErrorCatchHandler(error: Error, req: Request) {
         const body = {
             error: 'SERVER_ERROR',
             error_description: error.message,
@@ -350,7 +350,7 @@ export default class Loader<T = any> {
         return new JsonResponse(body, 500);
     }
 
-    protected async defaultInvalidInputHandler(error: InvalidInputError) {
+    protected async defaultInvalidInputHandler(error: InvalidInputError, req: Request) {
         const body = {
             error: 'INVALID_INPUT',
             error_description: `Input data in ${error.sectionName} section are wrong or missing`,

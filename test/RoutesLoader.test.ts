@@ -6,6 +6,8 @@ import axios from "axios";
 import * as chai from 'chai';
 import * as bodyParser from "body-parser";
 import {EmptyResponse} from "../src";
+import {Request} from "express";
+import JsonResponse from "../src/responses/JsonResponse";
 
 const expect = chai.expect;
 
@@ -39,11 +41,15 @@ describe('Loader', function () {
     it('should init Loader instance', function () {
         routerLoader = new Loader<RouteParams>(routeParams);
         ownErrorHandlerLoader = new Loader<RouteParams>(routeParams, {
-            errorCatchHandler: async (err) => {
-                return new EmptyResponse(404);
+            errorCatchHandler: async (err: Error, req: Request) => {
+                return new JsonResponse({
+                    path: req.path
+                }, 404);
             },
-            invalidInputHandler: async (err)=> {
-                return new EmptyResponse(400);
+            invalidInputHandler: async (err, req: Request)=> {
+                return new JsonResponse({
+                    path: req.path
+                }, 400);
             }
         });
     });
@@ -161,16 +167,22 @@ describe('Loader', function () {
     });
 
     it('should correctly use own error handler', async function () {
-        const res = await axios.get('/throw-error', {
+        const path = '/throw-error';
+
+        const res = await axios.get<{path: string}>(path, {
             validateStatus: status => status < 500
         });
         expect(res.status).to.be.equal(404);
+        expect(res.data.path).to.be.equal(path)
     });
 
     it('should correctly use own validation handler', async function () {
-        const res = await axios.get('/invalid-schema', {
+        const path = '/invalid-schema';
+
+        const res = await axios.get(path, {
             validateStatus: status => status < 500
         });
         expect(res.status).to.be.equal(400);
+        expect(res.data.path).to.be.equal(path)
     });
 });
